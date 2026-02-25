@@ -2,8 +2,8 @@
 // ⚙️ JSONBin.io 설정
 // 아래 두 값을 본인 것으로 교체하세요!
 // =====================
-const JSONBIN_API_KEY  = 'YOUR_API_KEY_HERE';   // JSONBin.io X-Access-Key
-const JSONBIN_BIN_ID   = 'YOUR_BIN_ID_HERE';    // Bin ID
+const JSONBIN_API_KEY  = '$2a$10$GYpjoju36J73auJdeSr3KuFFNT4T2fcuVdkWczzzHfx72unAR2Wu2';
+const JSONBIN_BIN_ID   = '699e7cf1ae596e708f474d9a';
 
 const JSONBIN_BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
