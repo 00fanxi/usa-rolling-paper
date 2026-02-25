@@ -58,12 +58,20 @@ body {
 }
 
 /* =====================
-   Header
+   Header — Aurora
 ===================== */
+@keyframes aurora-shift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
 .header {
   position: relative;
   z-index: 10;
-  background: linear-gradient(160deg, #0d2459 0%, #1a3a6b 40%, #b01e2e 100%);
+  background: linear-gradient(-45deg, #0d2459, #1a3a6b, #7b1a2e, #c0392b, #0d2459, #1a4d7a);
+  background-size: 400% 400%;
+  animation: aurora-shift 12s ease infinite;
   color: white;
   text-align: center;
   padding: 60px 24px 56px;
@@ -96,11 +104,17 @@ body {
   );
 }
 
+/* Header entrance animations */
+@keyframes fade-in-down {
+  0%   { opacity: 0; transform: translateY(-28px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 .header-flag {
   font-size: 3rem;
   margin-bottom: 14px;
   filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
-  animation: wave 3s ease-in-out infinite;
+  animation: wave 3s ease-in-out infinite, fade-in-down 0.6s ease 0s both;
 }
 
 @keyframes wave {
@@ -110,17 +124,28 @@ body {
 
 .header-inner { position: relative; z-index: 1; }
 
+/* Gradient Shimmer Logo */
+@keyframes gradient-shine {
+  0%   { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
 .logo {
   font-family: 'Pacifico', cursive;
   font-size: clamp(1.9rem, 5vw, 3.2rem);
-  color: white;
   letter-spacing: 1px;
-  text-shadow: 0 3px 12px rgba(0,0,0,0.4);
   margin-bottom: 10px;
+  background: linear-gradient(135deg, #fff 0%, #f1c40f 45%, #fff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: fade-in-down 0.6s ease 0.15s both, gradient-shine 4s linear infinite;
+  text-shadow: none;
 }
 
 .logo-accent {
-  color: var(--gold);
+  /* color handled by parent gradient, keeping this for fallback */
 }
 
 .subtitle {
@@ -129,6 +154,9 @@ body {
   color: rgba(255,255,255,0.85);
   letter-spacing: 0.3px;
   margin-bottom: 20px;
+  animation: fade-in-down 0.6s ease 0.3s both;
+  min-height: 1.5em;
+  display: inline-block;
 }
 
 .header-tags {
@@ -136,6 +164,7 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+  animation: fade-in-down 0.6s ease 0.45s both;
 }
 
 .tag {
@@ -147,11 +176,20 @@ body {
   font-size: 0.78rem;
   font-weight: 500;
   letter-spacing: 0.3px;
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.3), 0 2px 8px rgba(0,0,0,0.15);
+  transition: all 0.25s ease;
+  cursor: default;
+}
+
+.tag:hover {
+  background: rgba(255,255,255,0.28);
+  transform: translateY(-1px);
 }
 
 /* =====================
-   Main Layout
+   Main Layout — 1 column
 ===================== */
 .main {
   position: relative;
@@ -159,14 +197,102 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 48px 20px 80px;
-  display: grid;
-  grid-template-columns: 400px 1fr;
-  gap: 40px;
-  align-items: start;
 }
 
-@media (max-width: 920px) {
-  .main { grid-template-columns: 1fr; }
+/* =====================
+   Write Toggle Button
+===================== */
+.write-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, #1a3a6b, #2e5eaa);
+  color: white;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(26,58,107,0.4);
+  transition: all 0.28s ease;
+  animation: btn-shimmer-pulse 3s ease infinite;
+  white-space: nowrap;
+}
+
+.write-toggle-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(26,58,107,0.5);
+}
+
+@keyframes btn-shimmer-pulse {
+  0%,100% { box-shadow: 0 4px 20px rgba(26,58,107,0.4); }
+  50%      { box-shadow: 0 4px 28px rgba(26,58,107,0.65), 0 0 0 6px rgba(26,58,107,0.1); }
+}
+
+/* =====================
+   Write Panel (slide-in overlay)
+===================== */
+.write-panel-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 20, 50, 0.4);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 499;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.write-panel-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.write-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(440px, 100vw);
+  background: var(--cream);
+  z-index: 500;
+  box-shadow: -8px 0 40px rgba(10,20,50,0.18);
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  overflow-y: auto;
+  padding: 20px 24px 40px;
+}
+
+.write-panel.open {
+  transform: translateX(0);
+}
+
+.write-panel-close {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  background: #eeeef7;
+  border: none;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.write-panel-close:hover {
+  background: #dde0f5;
+  color: var(--text);
+  transform: rotate(90deg);
 }
 
 /* =====================
@@ -187,15 +313,11 @@ body {
 /* =====================
    Write Card
 ===================== */
-.write-section {
-  position: sticky;
-  top: 28px;
-}
-
 .write-card {
   border-top: 5px solid var(--navy);
   position: relative;
   overflow: hidden;
+  margin-top: 10px;
 }
 
 /* Subtle stars-and-stripes corner accent */
@@ -355,7 +477,7 @@ body {
 }
 
 /* =====================
-   Submit Button
+   Submit Button — Shimmer
 ===================== */
 .submit-btn {
   width: 100%;
@@ -376,6 +498,25 @@ body {
   margin-top: 6px;
   letter-spacing: 0.3px;
   box-shadow: 0 4px 16px rgba(26, 58, 107, 0.35);
+  overflow: hidden;
+  position: relative;
+}
+
+.submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.28), transparent);
+  animation: btn-shimmer 2.5s ease infinite;
+}
+
+@keyframes btn-shimmer {
+  0%   { left: -100%; }
+  40%  { left: 150%; }
+  100% { left: 150%; }
 }
 
 .submit-btn:hover {
@@ -386,6 +527,10 @@ body {
 
 .submit-btn:active {
   transform: translateY(0);
+}
+
+.submit-btn.success {
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
 }
 
 .btn-icon {
@@ -401,7 +546,22 @@ body {
 /* =====================
    Board Section
 ===================== */
-.board-section { min-height: 400px; }
+.board-section {
+  min-height: 400px;
+  position: relative;
+}
+
+/* Dot grid background */
+.board-section::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background-image: radial-gradient(circle, rgba(26,58,107,0.07) 1.5px, transparent 1.5px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: 20px;
+}
 
 .board-header {
   display: flex;
@@ -436,6 +596,8 @@ body {
 .board-actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 .filter-btn {
@@ -486,7 +648,7 @@ body {
 }
 
 /* =====================
-   Message Cards
+   Message Cards — 3D Tilt + Glow
 ===================== */
 .message-card {
   border-radius: var(--radius);
@@ -501,15 +663,21 @@ body {
   gap: 9px;
   box-shadow: 0 4px 18px rgba(0,0,0,0.1);
   color: white;
+  transform-style: preserve-3d;
+  will-change: transform;
 }
 
-/* subtle texture overlay */
+/* Dynamic light reflection */
 .message-card::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(circle at 80% 10%, rgba(255,255,255,0.18) 0%, transparent 60%);
+  background: radial-gradient(
+    circle at var(--mouse-x, 80%) var(--mouse-y, 10%),
+    rgba(255,255,255,0.28) 0%, transparent 55%
+  );
   pointer-events: none;
+  transition: background 0.1s;
 }
 
 .message-card:hover {
@@ -520,6 +688,21 @@ body {
 .message-card:nth-child(even):hover {
   transform: translateY(-7px) rotate(-1.2deg);
 }
+
+/* tilt-active prevents CSS hover transform */
+.message-card.tilt-active,
+.message-card.tilt-active:hover,
+.message-card.tilt-active:nth-child(even):hover {
+  /* JS controls transform directly */
+}
+
+/* Color-specific glow on hover */
+.message-card.color-navy:hover   { box-shadow: 0 20px 50px rgba(26,58,107,0.55), 0 0 35px rgba(46,94,170,0.35); }
+.message-card.color-red:hover    { box-shadow: 0 20px 50px rgba(192,57,43,0.55), 0 0 35px rgba(231,76,60,0.35); }
+.message-card.color-sky:hover    { box-shadow: 0 20px 50px rgba(41,128,185,0.55), 0 0 35px rgba(116,185,255,0.35); }
+.message-card.color-desert:hover { box-shadow: 0 20px 50px rgba(192,132,90,0.55), 0 0 35px rgba(230,126,34,0.35); }
+.message-card.color-forest:hover { box-shadow: 0 20px 50px rgba(39,174,96,0.55), 0 0 35px rgba(46,204,113,0.35); }
+.message-card.color-gold:hover   { box-shadow: 0 20px 50px rgba(212,172,13,0.55), 0 0 35px rgba(241,196,15,0.35); }
 
 /* Color themes */
 .message-card.color-navy   { background: linear-gradient(145deg, #1a3a6b, #2e5eaa); }
@@ -577,7 +760,10 @@ body {
   margin-top: auto;
 }
 
-/* Entry animation */
+/* =====================
+   Card Animations
+===================== */
+/* New card pop-in */
 @keyframes card-in {
   0%   { opacity: 0; transform: scale(0.65) rotate(-6deg); }
   60%  { transform: scale(1.06) rotate(2deg); }
@@ -586,6 +772,29 @@ body {
 
 .message-card.new {
   animation: card-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Stagger reveal (scroll / initial load) */
+.message-card.reveal-hidden {
+  opacity: 0;
+  transform: scale(0.82) translateY(24px);
+  transition: opacity 0.5s ease, transform 0.55s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.message-card.reveal-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Mobile: no tilt, simple hover */
+@media (hover: none) {
+  .message-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 28px rgba(0,0,0,0.14);
+  }
+  .message-card:nth-child(even):hover {
+    transform: translateY(-4px);
+  }
 }
 
 /* =====================
@@ -650,6 +859,7 @@ body {
 .modal-close:hover {
   background: #dde0f5;
   color: var(--text);
+  transform: rotate(90deg);
 }
 
 .modal-sticker {
@@ -699,7 +909,7 @@ body {
   color: var(--text-light);
 }
 
-/* Modal Actions (Edit / Delete / Save / Cancel) */
+/* Modal Actions */
 .modal-actions {
   display: flex;
   gap: 10px;
@@ -978,8 +1188,9 @@ body {
 ===================== */
 @media (max-width: 600px) {
   .header { padding: 40px 16px 48px; }
-  .main { padding: 36px 14px 60px; gap: 28px; }
-  .card { padding: 24px 18px; }
+  .main { padding: 36px 14px 60px; }
   .board { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
   .modal { padding: 40px 22px 34px; }
+  .board-actions { gap: 6px; }
+  .write-toggle-btn { padding: 8px 18px; font-size: 0.82rem; }
 }

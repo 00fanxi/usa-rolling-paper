@@ -1,10 +1,8 @@
 // =====================
 // ⚙️ JSONBin.io 설정
-// 아래 두 값을 본인 것으로 교체하세요!
 // =====================
 const JSONBIN_API_KEY  = '$2a$10$GYpjoju36J73auJdeSr3KuFFNT4T2fcuVdkWczzzHfx72unAR2Wu2';
 const JSONBIN_BIN_ID   = '699e7cf1ae596e708f474d9a';
-
 const JSONBIN_BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // =====================
@@ -30,6 +28,33 @@ const messageCount = document.getElementById('messageCount');
 const modalOverlay = document.getElementById('modalOverlay');
 const toast        = document.getElementById('toast');
 const particles    = document.getElementById('particles');
+
+// Write Panel
+const writeToggleBtn     = document.getElementById('writeToggleBtn');
+const writePanel         = document.getElementById('writePanel');
+const writePanelOverlay  = document.getElementById('writePanelOverlay');
+const writePanelClose    = document.getElementById('writePanelClose');
+
+// =====================
+// Write Panel Toggle
+// =====================
+function openWritePanel() {
+  writePanel.classList.add('open');
+  writePanelOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Auto-focus name field
+  setTimeout(() => authorInput.focus(), 420);
+}
+
+function closeWritePanel() {
+  writePanel.classList.remove('open');
+  writePanelOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+writeToggleBtn.addEventListener('click', openWritePanel);
+writePanelClose.addEventListener('click', closeWritePanel);
+writePanelOverlay.addEventListener('click', closeWritePanel);
 
 // =====================
 // JSONBin API
@@ -91,6 +116,37 @@ for (let i = 0; i < 14; i++) createParticle();
 setInterval(createParticle, 2200);
 
 // =====================
+// Typing Effect (subtitle)
+// =====================
+function initTypingEffect() {
+  const el = document.querySelector('.subtitle');
+  if (!el) return;
+  const text = el.textContent;
+  el.textContent = '';
+  el.style.borderRight = '2px solid rgba(255,255,255,0.7)';
+  let i = 0;
+  function type() {
+    if (i < text.length) {
+      el.textContent += text[i++];
+      setTimeout(type, 40);
+    } else {
+      setTimeout(() => { el.style.borderRight = 'none'; }, 1200);
+    }
+  }
+  setTimeout(type, 950);
+}
+
+initTypingEffect();
+
+// =====================
+// Header Parallax
+// =====================
+window.addEventListener('scroll', () => {
+  document.querySelector('.header').style.backgroundPositionY =
+    `calc(50% + ${window.scrollY * 0.35}px)`;
+}, { passive: true });
+
+// =====================
 // Sticker Selection
 // =====================
 document.querySelectorAll('.sticker-btn').forEach(btn => {
@@ -120,6 +176,73 @@ messageInput.addEventListener('input', () => {
   charCount.textContent = len;
   document.querySelector('.char-count').style.color = len >= 900 ? '#c0392b' : '#c0c0d8';
 });
+
+// =====================
+// Confetti
+// =====================
+function launchConfetti() {
+  const canvas = document.createElement('canvas');
+  Object.assign(canvas.style, {
+    position: 'fixed', inset: '0', width: '100%', height: '100%',
+    pointerEvents: 'none', zIndex: '9999',
+  });
+  document.body.appendChild(canvas);
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#c0392b', '#1a3a6b', '#f1c40f', '#2ecc71', '#74b9ff', '#fff', '#e67e22'];
+  const pieces = Array.from({ length: 130 }, () => ({
+    x:     Math.random() * canvas.width,
+    y:     Math.random() * canvas.height * -0.5,
+    w:     6  + Math.random() * 8,
+    h:     10 + Math.random() * 6,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    rot:   Math.random() * 360,
+    rotV:  (Math.random() - 0.5) * 9,
+    vx:    (Math.random() - 0.5) * 5,
+    vy:    3 + Math.random() * 5,
+    alpha: 1,
+  }));
+
+  let frame;
+  (function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      if (p.alpha <= 0) return;
+      alive = true;
+      p.x  += p.vx;
+      p.y  += p.vy;
+      p.rot += p.rotV;
+      if (p.y > canvas.height * 0.75) p.alpha -= 0.022;
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (alive) frame = requestAnimationFrame(draw);
+    else canvas.remove();
+  })();
+
+  setTimeout(() => { cancelAnimationFrame(frame); canvas.remove(); }, 5000);
+}
+
+// =====================
+// Submit Success Animation
+// =====================
+function triggerSubmitSuccess() {
+  submitBtn.classList.add('success');
+  const spanEl = submitBtn.querySelector('span');
+  spanEl.textContent = '✓ Posted!';
+  setTimeout(() => {
+    submitBtn.classList.remove('success');
+    spanEl.textContent = 'Post Your Message!';
+  }, 2200);
+}
 
 // =====================
 // Submit
@@ -161,7 +284,7 @@ submitBtn.addEventListener('click', async () => {
     ts: now.getTime(),
   };
 
-  // 낙관적 업데이트: 화면 먼저 반영
+  // 낙관적 업데이트
   messages.unshift(newMsg);
   renderBoard(true);
   authorInput.value     = '';
@@ -170,7 +293,12 @@ submitBtn.addEventListener('click', async () => {
   charCount.textContent = '0';
   burstParticles();
 
-  // 서버에 저장
+  // 패널 닫기 + 성공 애니메이션 + confetti
+  closeWritePanel();
+  triggerSubmitSuccess();
+  launchConfetti();
+
+  // 서버 저장
   const ok = await saveMessages(messages);
   setLoading(false);
 
@@ -194,10 +322,30 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 });
 
 // =====================
+// Card Observer (scroll reveal)
+// =====================
+let cardObserver = null;
+
+function initCardObserver() {
+  if (cardObserver) cardObserver.disconnect();
+  cardObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.replace('reveal-hidden', 'reveal-visible');
+        }, i * 60);
+        cardObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.message-card.reveal-hidden').forEach(c => cardObserver.observe(c));
+}
+
+// =====================
 // Render Board
 // =====================
 function renderBoard(isNew = false) {
-  // board 전체를 새로 그림 (DOM 꼬임 방지)
   board.innerHTML = '';
 
   let list = [...messages];
@@ -220,11 +368,34 @@ function renderBoard(isNew = false) {
   list.forEach((msg, idx) => {
     board.appendChild(createCard(msg, isNew && idx === 0));
   });
+
+  // Stagger reveal for non-new cards
+  setTimeout(() => initCardObserver(), 50);
 }
+
+// =====================
+// Create Card — 3D Tilt
+// =====================
+const isTouchDevice = window.matchMedia('(hover: none)').matches;
+
+const cardColorMap = {
+  navy:   '#2e5eaa',
+  red:    '#e74c3c',
+  sky:    '#74b9ff',
+  desert: '#e67e22',
+  forest: '#2ecc71',
+  gold:   '#f1c40f',
+};
 
 function createCard(msg, isNew = false) {
   const card = document.createElement('div');
-  card.className = `message-card color-${msg.color}${isNew ? ' new' : ''}`;
+
+  if (isNew) {
+    card.className = `message-card color-${msg.color} new`;
+  } else {
+    card.className = `message-card color-${msg.color} reveal-hidden`;
+  }
+
   card.innerHTML = `
     <div class="card-sticker">${msg.sticker}</div>
     ${msg.to ? `<div class="card-to">To: ${escapeHtml(msg.to)}</div>` : ''}
@@ -232,7 +403,31 @@ function createCard(msg, isNew = false) {
     <div class="card-preview">${escapeHtml(msg.message)}</div>
     <div class="card-date">${msg.date}</div>
   `;
-  card.addEventListener('click', () => openModal(msg));
+
+  // 3D Tilt (desktop only)
+  if (!isTouchDevice) {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const rotY =  ((x - rect.width  / 2) / (rect.width  / 2)) * 12;
+      const rotX = -((y - rect.height / 2) / (rect.height / 2)) * 12;
+      card.style.setProperty('--mouse-x', (x / rect.width  * 100) + '%');
+      card.style.setProperty('--mouse-y', (y / rect.height * 100) + '%');
+      card.classList.add('tilt-active');
+      card.style.transform =
+        `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-8px) scale(1.02)`;
+      card.style.transition = 'box-shadow 0.15s';
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.classList.remove('tilt-active');
+      card.style.transform = '';
+      card.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    });
+  }
+
+  card.addEventListener('click', () => openModal(msg, card));
   return card;
 }
 
@@ -241,8 +436,22 @@ function createCard(msg, isNew = false) {
 // =====================
 let currentModalId = null;
 
-function openModal(msg) {
+function openModal(msg, cardEl) {
   currentModalId = msg.id;
+  const modalEl = document.getElementById('modal');
+
+  // 카드 색상으로 border-top 변경
+  modalEl.style.borderTopColor = cardColorMap[msg.color] || '#1a3a6b';
+
+  // transform-origin: 클릭한 카드 중심에서 펼쳐지기
+  if (cardEl) {
+    const r = cardEl.getBoundingClientRect();
+    const ox = ((r.left + r.width  / 2) / window.innerWidth  * 100).toFixed(1);
+    const oy = ((r.top  + r.height / 2) / window.innerHeight * 100).toFixed(1);
+    modalEl.style.transformOrigin = `${ox}vw ${oy}vh`;
+  } else {
+    modalEl.style.transformOrigin = 'center center';
+  }
 
   // View mode
   document.getElementById('modalSticker').textContent = msg.sticker;
@@ -287,14 +496,13 @@ document.getElementById('saveEditBtn').addEventListener('click', async () => {
   const newTo      = document.getElementById('editTo').value.trim();
   const newMessage = document.getElementById('editMessage').value.trim();
 
-  if (!newAuthor) { shakeElement(document.getElementById('editAuthor')); return; }
+  if (!newAuthor)  { shakeElement(document.getElementById('editAuthor'));  return; }
   if (!newMessage) { shakeElement(document.getElementById('editMessage')); return; }
 
   const idx = messages.findIndex(m => m.id === currentModalId);
   if (idx === -1) return;
 
   messages[idx] = { ...messages[idx], author: newAuthor, to: newTo, message: newMessage };
-
   renderBoard();
 
   setLoading(true);
@@ -308,7 +516,7 @@ document.getElementById('saveEditBtn').addEventListener('click', async () => {
 // Cancel 버튼
 document.getElementById('cancelEditBtn').addEventListener('click', () => {
   const msg = messages.find(m => m.id === currentModalId);
-  if (msg) openModal(msg); // View 모드로 복귀
+  if (msg) openModal(msg);
 });
 
 // Delete 버튼
@@ -328,25 +536,29 @@ document.getElementById('deleteBtn').addEventListener('click', async () => {
 
 document.getElementById('modalClose').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeShareModal(); } });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    closeModal();
+    closeShareModal();
+    closeWritePanel();
+  }
+});
 
 // =====================
 // Screenshot Share
 // =====================
-const shareOverlay    = document.getElementById('shareOverlay');
-const sharePreviewImg = document.getElementById('sharePreviewImg');
+const shareOverlay        = document.getElementById('shareOverlay');
+const sharePreviewImg     = document.getElementById('sharePreviewImg');
 const sharePreviewLoading = document.getElementById('sharePreviewLoading');
-let   screenshotBlob  = null;
+let   screenshotBlob      = null;
 
 async function openShareModal() {
-  // 모달 열기
   shareOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
   sharePreviewImg.style.display = 'none';
   sharePreviewLoading.style.display = 'flex';
   screenshotBlob = null;
 
-  // 공유 버튼 가용성 설정
   document.getElementById('shareNativeBtn').style.display =
     navigator.share ? '' : 'none';
 
@@ -431,7 +643,9 @@ document.getElementById('shareNativeBtn').addEventListener('click', async () => 
 function setLoading(state) {
   isLoading = state;
   submitBtn.disabled = state;
-  submitBtn.querySelector('span').textContent = state ? 'Saving...' : 'Post Your Message!';
+  if (!state && !submitBtn.classList.contains('success')) {
+    submitBtn.querySelector('span').textContent = 'Post Your Message!';
+  }
   submitBtn.style.opacity = state ? '0.7' : '1';
 }
 
@@ -472,7 +686,7 @@ function burstParticles() {
   }
 }
 
-// Shake keyframe injection
+// Shake + Spin keyframe injection
 const styleEl = document.createElement('style');
 styleEl.textContent = `
   @keyframes shake {
@@ -482,29 +696,26 @@ styleEl.textContent = `
     60%       { transform: translateX(-5px); }
     80%       { transform: translateX(5px); }
   }
+  @keyframes spin { to { transform: rotate(360deg); } }
 `;
 document.head.appendChild(styleEl);
 
 // =====================
-// 🚀 Init — JSONBin에서 데이터 로드
+// 🚀 Init
 // =====================
 (async () => {
-  // 설정이 안 된 경우 localStorage fallback
   if (JSONBIN_API_KEY === 'YOUR_API_KEY_HERE' || JSONBIN_BIN_ID === 'YOUR_BIN_ID_HERE') {
-    console.warn('⚠️ JSONBin API key / Bin ID not set. Using localStorage fallback.');
+    console.warn('⚠️ JSONBin not configured. Using localStorage fallback.');
     messages = JSON.parse(localStorage.getItem('usaTripMessages') || '[]');
-
-    // 샘플 데이터 (처음 방문 시)
     if (messages.length === 0) {
       messages = getSampleData();
       localStorage.setItem('usaTripMessages', JSON.stringify(messages));
     }
-
     renderBoard();
     return;
   }
 
-  // 로딩 표시
+  // Loading indicator
   board.innerHTML = `
     <div class="empty-state" id="emptyState">
       <div class="empty-icon" style="animation: spin 1s linear infinite; display:inline-block;">⏳</div>
@@ -512,13 +723,8 @@ document.head.appendChild(styleEl);
     </div>
   `;
 
-  const styleLoad = document.createElement('style');
-  styleLoad.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
-  document.head.appendChild(styleLoad);
-
   messages = await fetchMessages();
 
-  // 샘플 데이터 (처음 배포 시 빈 경우)
   if (messages.length === 0) {
     messages = getSampleData();
     await saveMessages(messages);
