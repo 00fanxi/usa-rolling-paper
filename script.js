@@ -8,13 +8,21 @@ const JSONBIN_BIN_ID   = '699e7cf1ae596e708f474d9a';
 const JSONBIN_BASE_URL = `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`;
 
 // =====================
+// ImgBB 설정
+// imgbb.com/api 에서 무료 API 키 발급 후 아래에 입력하세요
+// =====================
+const IMGBB_API_KEY    = 'YOUR_IMGBB_API_KEY';
+const IMGBB_UPLOAD_URL = 'https://api.imgbb.com/1/upload';
+
+// =====================
 // State
 // =====================
-let messages       = [];
+let messages        = [];
 let selectedSticker = '🗽';
 let selectedColor   = 'navy';
 let currentFilter   = 'all';
 let isLoading       = false;
+let selectedImageFile = null;
 
 // =====================
 // DOM
@@ -27,9 +35,15 @@ const submitBtn    = document.getElementById('submitBtn');
 const board        = document.getElementById('board');
 const emptyState   = document.getElementById('emptyState');
 const messageCount = document.getElementById('messageCount');
-const modalOverlay = document.getElementById('modalOverlay');
-const toast        = document.getElementById('toast');
-const particles    = document.getElementById('particles');
+const modalOverlay      = document.getElementById('modalOverlay');
+const toast             = document.getElementById('toast');
+const particles         = document.getElementById('particles');
+const imageInput        = document.getElementById('imageInput');
+const imageUploadArea   = document.getElementById('imageUploadArea');
+const uploadPlaceholder = document.getElementById('uploadPlaceholder');
+const imagePreviewWrap  = document.getElementById('imagePreviewWrap');
+const imagePreview      = document.getElementById('imagePreview');
+const imageRemoveBtn    = document.getElementById('imageRemoveBtn');
 
 // =====================
 // JSONBin API
@@ -68,6 +82,87 @@ async function saveMessages(msgs) {
     return false;
   }
 }
+
+// =====================
+// ImgBB Image Upload
+// =====================
+async function uploadImageToImgBB(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+  try {
+    const res = await fetch(`${IMGBB_UPLOAD_URL}?key=${IMGBB_API_KEY}`, {
+      method: 'POST',
+      body: formData,
+    });
+    if (!res.ok) throw new Error('ImgBB upload failed: ' + res.status);
+    const json = await res.json();
+    if (!json.success) throw new Error('ImgBB error: ' + (json.error?.message || 'unknown'));
+    return json.data.url;
+  } catch (e) {
+    console.error('uploadImageToImgBB error:', e);
+    return null;
+  }
+}
+
+// =====================
+// Image Upload Handlers
+// =====================
+function handleFileSelect(file) {
+  if (!file || !file.type.startsWith('image/')) {
+    showToast('⚠️ Please select an image file.');
+    return;
+  }
+  if (file.size > 32 * 1024 * 1024) {
+    showToast('⚠️ Image must be under 32MB.');
+    return;
+  }
+  selectedImageFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    imagePreview.src = e.target.result;
+    uploadPlaceholder.style.display = 'none';
+    imagePreviewWrap.style.display  = 'flex';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearImageState() {
+  selectedImageFile = null;
+  imageInput.value  = '';
+  imagePreview.src  = '';
+  imagePreviewWrap.style.display  = 'none';
+  uploadPlaceholder.style.display = 'flex';
+}
+
+imageUploadArea.addEventListener('click', (e) => {
+  if (e.target === imageRemoveBtn || imageRemoveBtn.contains(e.target)) return;
+  imageInput.click();
+});
+
+imageInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) handleFileSelect(e.target.files[0]);
+});
+
+imageRemoveBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  clearImageState();
+});
+
+imageUploadArea.addEventListener('dragover', (e) => {
+  e.preventDefault();
+  imageUploadArea.classList.add('drag-over');
+});
+
+imageUploadArea.addEventListener('dragleave', () => {
+  imageUploadArea.classList.remove('drag-over');
+});
+
+imageUploadArea.addEventListener('drop', (e) => {
+  e.preventDefault();
+  imageUploadArea.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) handleFileSelect(file);
+});
 
 // =====================
 // Background Particles
@@ -144,6 +239,16 @@ submitBtn.addEventListener('click', async () => {
     return;
   }
 
+  setLoading(true);
+
+  // 이미지 업로드 (선택된 경우)
+  let imageUrl = null;
+  if (selectedImageFile) {
+    showToast('📤 Uploading photo...');
+    imageUrl = await uploadImageToImgBB(selectedImageFile);
+    if (!imageUrl) showToast('⚠️ Photo upload failed. Posting without image.');
+  }
+
   const now = new Date();
   const newMsg = {
     id: Date.now(),
@@ -157,19 +262,20 @@ submitBtn.addEventListener('click', async () => {
       hour: '2-digit', minute: '2-digit',
     }),
     ts: now.getTime(),
+    ...(imageUrl && { imageUrl }),
   };
 
   // 낙관적 업데이트: 화면 먼저 반영
   messages.unshift(newMsg);
   renderBoard(true);
-  authorInput.value  = '';
-  toInput.value      = '';
-  messageInput.value = '';
+  authorInput.value     = '';
+  toInput.value         = '';
+  messageInput.value    = '';
   charCount.textContent = '0';
+  clearImageState();
   burstParticles();
 
   // 서버에 저장
-  setLoading(true);
   const ok = await saveMessages(messages);
   setLoading(false);
 
@@ -224,11 +330,18 @@ function renderBoard(isNew = false) {
 function createCard(msg, isNew = false) {
   const card = document.createElement('div');
   card.className = `message-card color-${msg.color}${isNew ? ' new' : ''}`;
+  const imgHtml = msg.imageUrl
+    ? `<div class="card-image-wrap">
+         <img class="card-image" src="${escapeHtml(msg.imageUrl)}" alt="photo" loading="lazy"
+           onerror="this.closest('.card-image-wrap').style.display='none'" />
+       </div>`
+    : '';
   card.innerHTML = `
     <div class="card-sticker">${msg.sticker}</div>
     ${msg.to ? `<div class="card-to">To: ${escapeHtml(msg.to)}</div>` : ''}
     <div class="card-author">From: ${escapeHtml(msg.author)}</div>
     <div class="card-preview">${escapeHtml(msg.message)}</div>
+    ${imgHtml}
     <div class="card-date">${msg.date}</div>
   `;
   card.addEventListener('click', () => openModal(msg));
@@ -249,6 +362,17 @@ function openModal(msg) {
   document.getElementById('modalAuthor').textContent  = `From: ${msg.author}`;
   document.getElementById('modalMessage').textContent = msg.message;
   document.getElementById('modalDate').textContent    = msg.date;
+
+  // 이미지 표시
+  const modalImageWrap = document.getElementById('modalImageWrap');
+  const modalImage     = document.getElementById('modalImage');
+  if (msg.imageUrl) {
+    modalImage.src = msg.imageUrl;
+    modalImageWrap.style.display = 'block';
+  } else {
+    modalImageWrap.style.display = 'none';
+    modalImage.src = '';
+  }
 
   document.getElementById('modalView').style.display = '';
   document.getElementById('modalEdit').style.display = 'none';
