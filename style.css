@@ -699,6 +699,112 @@ body {
   color: var(--text-light);
 }
 
+/* Modal Actions (Edit / Delete / Save / Cancel) */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 22px;
+  flex-wrap: wrap;
+}
+
+.modal-action-btn {
+  padding: 10px 22px;
+  border: none;
+  border-radius: 50px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.edit-btn {
+  background: #e8ecff;
+  color: var(--navy);
+}
+.edit-btn:hover {
+  background: var(--navy);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(26, 58, 107, 0.3);
+}
+
+.delete-btn {
+  background: #ffeaea;
+  color: var(--red);
+}
+.delete-btn:hover {
+  background: var(--red);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.3);
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #1a3a6b, #2e5eaa);
+  color: white;
+}
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(26, 58, 107, 0.4);
+  background: linear-gradient(135deg, #2e5eaa, #1a3a6b);
+}
+
+.cancel-btn {
+  background: #f0f0f8;
+  color: var(--text-light);
+}
+.cancel-btn:hover {
+  background: #e0e0ee;
+  color: var(--text);
+  transform: translateY(-2px);
+}
+
+/* Edit Form inside Modal */
+.edit-form {
+  text-align: left;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.edit-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 4px;
+}
+
+.edit-form input,
+.edit-form textarea {
+  width: 100%;
+  border: 2px solid #e8e8f0;
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--text);
+  background: #f9f9fc;
+  transition: border-color 0.22s, box-shadow 0.22s;
+  resize: none;
+  outline: none;
+}
+
+.edit-form input:focus,
+.edit-form textarea:focus {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(26, 58, 107, 0.12);
+  background: var(--white);
+}
+
 /* =====================
    Toast
 ===================== */

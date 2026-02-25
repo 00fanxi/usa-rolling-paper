@@ -28,12 +28,6 @@ const board        = document.getElementById('board');
 const emptyState   = document.getElementById('emptyState');
 const messageCount = document.getElementById('messageCount');
 const modalOverlay = document.getElementById('modalOverlay');
-const modalClose   = document.getElementById('modalClose');
-const modalSticker = document.getElementById('modalSticker');
-const modalTo      = document.getElementById('modalTo');
-const modalAuthor  = document.getElementById('modalAuthor');
-const modalMessage = document.getElementById('modalMessage');
-const modalDate    = document.getElementById('modalDate');
 const toast        = document.getElementById('toast');
 const particles    = document.getElementById('particles');
 
@@ -244,22 +238,94 @@ function createCard(msg, isNew = false) {
 // =====================
 // Modal
 // =====================
+let currentModalId = null;
+
 function openModal(msg) {
-  modalSticker.textContent = msg.sticker;
-  modalTo.textContent      = msg.to ? `To: ${msg.to}` : '';
-  modalAuthor.textContent  = `From: ${msg.author}`;
-  modalMessage.textContent = msg.message;
-  modalDate.textContent    = msg.date;
+  currentModalId = msg.id;
+
+  // View mode
+  document.getElementById('modalSticker').textContent = msg.sticker;
+  document.getElementById('modalTo').textContent      = msg.to ? `To: ${msg.to}` : '';
+  document.getElementById('modalAuthor').textContent  = `From: ${msg.author}`;
+  document.getElementById('modalMessage').textContent = msg.message;
+  document.getElementById('modalDate').textContent    = msg.date;
+
+  document.getElementById('modalView').style.display = '';
+  document.getElementById('modalEdit').style.display = 'none';
+
   modalOverlay.classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function openEditMode(msg) {
+  document.getElementById('editSticker').textContent = msg.sticker;
+  document.getElementById('editAuthor').value  = msg.author;
+  document.getElementById('editTo').value      = msg.to || '';
+  document.getElementById('editMessage').value = msg.message;
+
+  document.getElementById('modalView').style.display = 'none';
+  document.getElementById('modalEdit').style.display = '';
+  document.getElementById('editAuthor').focus();
 }
 
 function closeModal() {
   modalOverlay.classList.remove('open');
   document.body.style.overflow = '';
+  currentModalId = null;
 }
 
-modalClose.addEventListener('click', closeModal);
+// Edit 버튼
+document.getElementById('editBtn').addEventListener('click', () => {
+  const msg = messages.find(m => m.id === currentModalId);
+  if (msg) openEditMode(msg);
+});
+
+// Save 버튼
+document.getElementById('saveEditBtn').addEventListener('click', async () => {
+  const newAuthor  = document.getElementById('editAuthor').value.trim();
+  const newTo      = document.getElementById('editTo').value.trim();
+  const newMessage = document.getElementById('editMessage').value.trim();
+
+  if (!newAuthor) { shakeElement(document.getElementById('editAuthor')); return; }
+  if (!newMessage) { shakeElement(document.getElementById('editMessage')); return; }
+
+  const idx = messages.findIndex(m => m.id === currentModalId);
+  if (idx === -1) return;
+
+  messages[idx] = { ...messages[idx], author: newAuthor, to: newTo, message: newMessage };
+
+  renderBoard();
+
+  setLoading(true);
+  const ok = await saveMessages(messages);
+  setLoading(false);
+
+  showToast(ok ? '✏️ Message updated!' : '⚠️ Updated locally — check API key!');
+  closeModal();
+});
+
+// Cancel 버튼
+document.getElementById('cancelEditBtn').addEventListener('click', () => {
+  const msg = messages.find(m => m.id === currentModalId);
+  if (msg) openModal(msg); // View 모드로 복귀
+});
+
+// Delete 버튼
+document.getElementById('deleteBtn').addEventListener('click', async () => {
+  if (!confirm('Delete this message? This cannot be undone.')) return;
+
+  messages = messages.filter(m => m.id !== currentModalId);
+  closeModal();
+  renderBoard();
+
+  setLoading(true);
+  const ok = await saveMessages(messages);
+  setLoading(false);
+
+  showToast(ok ? '🗑️ Message deleted!' : '⚠️ Deleted locally — check API key!');
+});
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 

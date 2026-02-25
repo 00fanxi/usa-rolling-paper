@@ -123,11 +123,37 @@
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal" id="modal">
       <button class="modal-close" id="modalClose">✕</button>
-      <div class="modal-sticker" id="modalSticker"></div>
-      <div class="modal-to" id="modalTo"></div>
-      <div class="modal-author" id="modalAuthor"></div>
-      <div class="modal-message" id="modalMessage"></div>
-      <div class="modal-date" id="modalDate"></div>
+
+      <!-- View Mode -->
+      <div id="modalView">
+        <div class="modal-sticker" id="modalSticker"></div>
+        <div class="modal-to" id="modalTo"></div>
+        <div class="modal-author" id="modalAuthor"></div>
+        <div class="modal-message" id="modalMessage"></div>
+        <div class="modal-date" id="modalDate"></div>
+        <div class="modal-actions">
+          <button class="modal-action-btn edit-btn" id="editBtn">✏️ Edit</button>
+          <button class="modal-action-btn delete-btn" id="deleteBtn">🗑️ Delete</button>
+        </div>
+      </div>
+
+      <!-- Edit Mode -->
+      <div id="modalEdit" style="display:none;">
+        <div class="modal-sticker" id="editSticker"></div>
+        <div class="edit-form">
+          <label class="edit-label">Name</label>
+          <input type="text" id="editAuthor" maxlength="30" />
+          <label class="edit-label">To (optional)</label>
+          <input type="text" id="editTo" maxlength="30" />
+          <label class="edit-label">Message</label>
+          <textarea id="editMessage" maxlength="220" rows="4"></textarea>
+        </div>
+        <div class="modal-actions">
+          <button class="modal-action-btn save-btn" id="saveEditBtn">💾 Save</button>
+          <button class="modal-action-btn cancel-btn" id="cancelEditBtn">✕ Cancel</button>
+        </div>
+      </div>
+
     </div>
   </div>
 
