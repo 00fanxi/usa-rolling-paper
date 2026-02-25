@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>USA Trip Rolling Paper ✈️</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Inter:wght@300;400;500;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- Background stars / particles -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-flag">🇺🇸</div>
+    <div class="header-inner">
+      <h1 class="logo">USA Trip <span class="logo-accent">Rolling Paper</span></h1>
+      <p class="subtitle">✈️ Leave a message for your fellow travelers! 🗽</p>
+      <div class="header-tags">
+        <span class="tag">#RoadTrip</span>
+        <span class="tag">#USATour</span>
+        <span class="tag">#TravelMemories</span>
+        <span class="tag">#NewFriends</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- Write Section -->
+    <section class="write-section">
+      <div class="card write-card">
+        <div class="card-header">
+          <span class="card-icon">✏️</span>
+          <h2>Write a Message</h2>
+        </div>
+
+        <div class="form-group">
+          <label for="authorInput">Your Name</label>
+          <input type="text" id="authorInput" placeholder="e.g. Sarah from NYC" maxlength="30" />
+        </div>
+
+        <div class="form-group">
+          <label for="toInput">To (optional)</label>
+          <input type="text" id="toInput" placeholder="e.g. Everyone, or a specific friend" maxlength="30" />
+        </div>
+
+        <div class="form-group">
+          <label for="messageInput">Your Message</label>
+          <textarea id="messageInput" placeholder="Share your favorite travel memory, a funny moment, or just say hi! 😄" maxlength="220" rows="4"></textarea>
+          <span class="char-count"><span id="charCount">0</span>/220</span>
+        </div>
+
+        <div class="form-group">
+          <label>Pick a Sticker</label>
+          <div class="sticker-picker">
+            <button class="sticker-btn active" data-sticker="🗽">🗽</button>
+            <button class="sticker-btn" data-sticker="🌵">🌵</button>
+            <button class="sticker-btn" data-sticker="🎰">🎰</button>
+            <button class="sticker-btn" data-sticker="🏄">🏄</button>
+            <button class="sticker-btn" data-sticker="🎸">🎸</button>
+            <button class="sticker-btn" data-sticker="🏈">🏈</button>
+            <button class="sticker-btn" data-sticker="🌉">🌉</button>
+            <button class="sticker-btn" data-sticker="🤠">🤠</button>
+            <button class="sticker-btn" data-sticker="🍔">🍔</button>
+            <button class="sticker-btn" data-sticker="🎡">🎡</button>
+            <button class="sticker-btn" data-sticker="✈️">✈️</button>
+            <button class="sticker-btn" data-sticker="📸">📸</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Card Style</label>
+          <div class="color-picker">
+            <button class="color-btn active" data-color="navy" style="background: linear-gradient(135deg, #1a3a6b, #2e5eaa)" title="Navy Blue"></button>
+            <button class="color-btn" data-color="red" style="background: linear-gradient(135deg, #c0392b, #e74c3c)" title="Stars & Stripes Red"></button>
+            <button class="color-btn" data-color="sky" style="background: linear-gradient(135deg, #2980b9, #74b9ff)" title="Canyon Sky"></button>
+            <button class="color-btn" data-color="desert" style="background: linear-gradient(135deg, #c0845a, #e67e22)" title="Desert Sunset"></button>
+            <button class="color-btn" data-color="forest" style="background: linear-gradient(135deg, #27ae60, #2ecc71)" title="Forest Green"></button>
+            <button class="color-btn" data-color="gold" style="background: linear-gradient(135deg, #d4ac0d, #f1c40f)" title="Hollywood Gold"></button>
+          </div>
+        </div>
+
+        <button class="submit-btn" id="submitBtn">
+          <span>Post Your Message!</span>
+          <span class="btn-icon">📮</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Message Board -->
+    <section class="board-section">
+      <div class="board-header">
+        <div class="board-title">
+          <h2>📬 Message Board</h2>
+          <span class="message-count" id="messageCount">0 messages</span>
+        </div>
+        <div class="board-actions">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="recent">Recent</button>
+        </div>
+      </div>
+
+      <div class="board" id="board">
+        <div class="empty-state" id="emptyState">
+          <div class="empty-icon">📭</div>
+          <p>No messages yet.<br/>Be the first one to leave a note!</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>🗺️ Made with ❤️ by fellow travelers &nbsp;|&nbsp; 🇺🇸 USA Trip 2026</p>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-sticker" id="modalSticker"></div>
+      <div class="modal-to" id="modalTo"></div>
+      <div class="modal-author" id="modalAuthor"></div>
+      <div class="modal-message" id="modalMessage"></div>
+      <div class="modal-date" id="modalDate"></div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
