@@ -43,11 +43,14 @@ const particles    = document.getElementById('particles');
 async function fetchMessages() {
   try {
     const res = await fetch(JSONBIN_BASE_URL + '/latest', {
-      headers: { 'X-Access-Key': JSONBIN_API_KEY }
+      headers: {
+        'X-Master-Key': JSONBIN_API_KEY,
+        'X-Bin-Meta': 'false',
+      }
     });
-    if (!res.ok) throw new Error('Fetch failed');
+    if (!res.ok) throw new Error('Fetch failed: ' + res.status);
     const data = await res.json();
-    return data.record.messages || [];
+    return data.messages || [];
   } catch (e) {
     console.error('fetchMessages error:', e);
     return [];
@@ -60,11 +63,11 @@ async function saveMessages(msgs) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'X-Access-Key': JSONBIN_API_KEY,
+        'X-Master-Key': JSONBIN_API_KEY,
       },
       body: JSON.stringify({ messages: msgs }),
     });
-    if (!res.ok) throw new Error('Save failed');
+    if (!res.ok) throw new Error('Save failed: ' + res.status);
     return true;
   } catch (e) {
     console.error('saveMessages error:', e);
@@ -199,9 +202,16 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 // Render Board
 // =====================
 function renderBoard(isNew = false) {
+  // 카드만 제거 (emptyState는 유지)
   Array.from(board.children).forEach(child => {
     if (!child.classList.contains('empty-state')) child.remove();
   });
+
+  // emptyState가 board 안에 없으면 다시 추가
+  const es = document.getElementById('emptyState');
+  if (!es || !board.contains(es)) {
+    board.appendChild(createEmptyState());
+  }
 
   let list = [...messages];
   if (currentFilter === 'recent') {
@@ -210,17 +220,17 @@ function renderBoard(isNew = false) {
   }
 
   if (list.length === 0) {
-    emptyState.style.display = 'block';
+    document.getElementById('emptyState').style.display = 'block';
     messageCount.textContent = '0 messages';
     return;
   }
 
-  emptyState.style.display = 'none';
+  document.getElementById('emptyState').style.display = 'none';
   messageCount.textContent = `${messages.length} message${messages.length !== 1 ? 's' : ''}`;
 
   list.forEach((msg, idx) => {
     const card = createCard(msg, isNew && idx === 0);
-    board.insertBefore(card, emptyState);
+    board.insertBefore(card, document.getElementById('emptyState'));
   });
 }
 
@@ -360,7 +370,7 @@ document.head.appendChild(styleEl);
   }
 
   board.innerHTML = '';
-  board.appendChild(document.getElementById('emptyState') || createEmptyState());
+  board.appendChild(createEmptyState());
   renderBoard();
 })();
 
