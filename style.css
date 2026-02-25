@@ -826,12 +826,15 @@ body {
   padding: 50px 40px 42px;
   max-width: 430px;
   width: 100%;
+  max-height: 88vh;
+  overflow-y: auto;
   text-align: center;
   position: relative;
   transform: scale(0.8) translateY(28px);
   transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 20px 60px rgba(10,20,50,0.3);
   border-top: 6px solid var(--navy);
+  overscroll-behavior: contain;
 }
 
 .modal-overlay.open .modal {
@@ -902,6 +905,7 @@ body {
   margin-bottom: 16px;
   text-align: left;
   border-left: 4px solid var(--navy);
+  max-height: none;
 }
 
 .modal-date {
@@ -1190,7 +1194,7 @@ body {
   .header { padding: 40px 16px 48px; }
   .main { padding: 36px 14px 60px; }
   .board { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
-  .modal { padding: 40px 22px 34px; }
+  .modal { padding: 40px 22px 34px; max-height: 92vh; }
   .board-actions { gap: 6px; }
   .write-toggle-btn { padding: 8px 18px; font-size: 0.82rem; }
 }
