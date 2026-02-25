@@ -202,16 +202,8 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 // Render Board
 // =====================
 function renderBoard(isNew = false) {
-  // 카드만 제거 (emptyState는 유지)
-  Array.from(board.children).forEach(child => {
-    if (!child.classList.contains('empty-state')) child.remove();
-  });
-
-  // emptyState가 board 안에 없으면 다시 추가
-  const es = document.getElementById('emptyState');
-  if (!es || !board.contains(es)) {
-    board.appendChild(createEmptyState());
-  }
+  // board 전체를 새로 그림 (DOM 꼬임 방지)
+  board.innerHTML = '';
 
   let list = [...messages];
   if (currentFilter === 'recent') {
@@ -220,17 +212,18 @@ function renderBoard(isNew = false) {
   }
 
   if (list.length === 0) {
-    document.getElementById('emptyState').style.display = 'block';
     messageCount.textContent = '0 messages';
+    const es = document.createElement('div');
+    es.className = 'empty-state';
+    es.id = 'emptyState';
+    es.innerHTML = '<div class="empty-icon">📭</div><p>No messages yet.<br/>Be the first one to leave a note!</p>';
+    board.appendChild(es);
     return;
   }
 
-  document.getElementById('emptyState').style.display = 'none';
   messageCount.textContent = `${messages.length} message${messages.length !== 1 ? 's' : ''}`;
-
   list.forEach((msg, idx) => {
-    const card = createCard(msg, isNew && idx === 0);
-    board.insertBefore(card, document.getElementById('emptyState'));
+    board.appendChild(createCard(msg, isNew && idx === 0));
   });
 }
 
@@ -369,18 +362,8 @@ document.head.appendChild(styleEl);
     await saveMessages(messages);
   }
 
-  board.innerHTML = '';
-  board.appendChild(createEmptyState());
   renderBoard();
 })();
-
-function createEmptyState() {
-  const div = document.createElement('div');
-  div.className = 'empty-state';
-  div.id = 'emptyState';
-  div.innerHTML = `<div class="empty-icon">📭</div><p>No messages yet.<br/>Be the first one to leave a note!</p>`;
-  return div;
-}
 
 function getSampleData() {
   return [
