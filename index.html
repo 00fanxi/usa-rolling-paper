@@ -55,22 +55,6 @@
         </div>
 
         <div class="form-group">
-          <label>Attach a Photo (optional)</label>
-          <div class="image-upload-area" id="imageUploadArea">
-            <input type="file" id="imageInput" accept="image/*" style="display:none" />
-            <div class="upload-placeholder" id="uploadPlaceholder">
-              <span class="upload-icon">📷</span>
-              <span class="upload-text">Click or drag &amp; drop a photo</span>
-              <span class="upload-hint">Supports JPG, PNG, GIF · Max 32MB</span>
-            </div>
-            <div class="image-preview-wrap" id="imagePreviewWrap" style="display:none">
-              <img id="imagePreview" src="" alt="Preview" />
-              <button type="button" class="image-remove-btn" id="imageRemoveBtn">✕ Remove</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
           <label>Pick a Sticker</label>
           <div class="sticker-picker">
             <button class="sticker-btn active" data-sticker="🗽">🗽</button>
@@ -117,6 +101,7 @@
         <div class="board-actions">
           <button class="filter-btn active" data-filter="all">All</button>
           <button class="filter-btn" data-filter="recent">Recent</button>
+          <button class="share-btn" id="shareBtn" title="Share a screenshot">📸 Share</button>
         </div>
       </div>
 
@@ -146,10 +131,6 @@
         <div class="modal-to" id="modalTo"></div>
         <div class="modal-author" id="modalAuthor"></div>
         <div class="modal-message" id="modalMessage"></div>
-        <div class="modal-image-wrap" id="modalImageWrap" style="display:none">
-          <img id="modalImage" src="" alt="Attached photo" class="modal-image"
-            onerror="this.closest('.modal-image-wrap').style.display='none'" />
-        </div>
         <div class="modal-date" id="modalDate"></div>
         <div class="modal-actions">
           <button class="modal-action-btn edit-btn" id="editBtn">✏️ Edit</button>
@@ -177,9 +158,31 @@
     </div>
   </div>
 
+  <!-- Share Modal -->
+  <div class="modal-overlay" id="shareOverlay">
+    <div class="modal share-modal" id="shareModal">
+      <button class="modal-close" id="shareModalClose">✕</button>
+      <div class="share-modal-title">📸 Share This Board</div>
+      <div class="share-preview-wrap">
+        <img id="sharePreviewImg" src="" alt="Screenshot preview" />
+        <div class="share-preview-loading" id="sharePreviewLoading">
+          <span style="font-size:2rem;animation:spin 1s linear infinite;display:inline-block">⏳</span>
+          <p>Capturing screenshot...</p>
+        </div>
+      </div>
+      <div class="share-actions">
+        <button class="share-action-btn" id="shareDownloadBtn">⬇️ Download</button>
+        <button class="share-action-btn" id="shareCopyBtn">📋 Copy Image</button>
+        <button class="share-action-btn share-native-btn" id="shareNativeBtn">🔗 Share</button>
+      </div>
+      <p class="share-url-hint">🌐 <a href="https://00fanxi.github.io/usa-rolling-paper/" target="_blank">00fanxi.github.io/usa-rolling-paper</a></p>
+    </div>
+  </div>
+
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
-  <script src="script.js?v=5"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="script.js?v=6"></script>
 </body>
 </html>
