@@ -1188,13 +1188,149 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: #1a3a6b; }
 
 /* =====================
-   Responsive
+   Responsive — Mobile
 ===================== */
 @media (max-width: 600px) {
-  .header { padding: 40px 16px 48px; }
-  .main { padding: 36px 14px 60px; }
-  .board { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; }
-  .modal { padding: 40px 22px 34px; max-height: 92vh; }
-  .board-actions { gap: 6px; }
-  .write-toggle-btn { padding: 8px 18px; font-size: 0.82rem; }
+
+  /* ── Header ── */
+  .header { padding: 32px 16px 44px; }
+  .header-flag { font-size: 2.4rem; }
+  .logo { font-size: clamp(1.6rem, 7vw, 2.2rem); }
+  .subtitle { font-size: 0.88rem; }
+  .tag { font-size: 0.72rem; padding: 3px 10px; }
+
+  /* ── Main ── */
+  .main { padding: 24px 12px 80px; }
+
+  /* ── Board header: stack title + actions ── */
+  .board-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .board-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 6px;
+    align-items: center;
+  }
+  .write-toggle-btn {
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+  .filter-btn { padding: 6px 12px; font-size: 0.78rem; }
+  .share-btn  { padding: 6px 10px; font-size: 0.78rem; }
+
+  /* ── Card grid: single column on very small, 2col otherwise ── */
+  .board { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 380px) {
+    .board { grid-template-columns: 1fr; }
+  }
+
+  /* Card touch press feedback */
+  .message-card:active {
+    transform: scale(0.96) !important;
+    transition: transform 0.1s ease !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12) !important;
+  }
+
+  /* ── Write Panel: full-width, safe bottom padding ── */
+  .write-panel {
+    width: 100vw;
+    padding: 16px 18px env(safe-area-inset-bottom, 24px);
+    padding-top: 16px;
+  }
+  .write-card { padding: 24px 16px; }
+  .card-header { margin-bottom: 18px; }
+  .form-group { margin-bottom: 16px; }
+  .sticker-btn { width: 40px; height: 40px; font-size: 1.1rem; }
+
+  /* ── Modal → Bottom Sheet on mobile ── */
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .modal {
+    max-width: 100%;
+    width: 100%;
+    max-height: 85vh;
+    border-radius: 24px 24px 0 0;
+    padding: 44px 22px 32px;
+    /* slide up from bottom */
+    transform: translateY(100%);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .modal-overlay.open .modal {
+    transform: translateY(0);
+  }
+  /* Drag handle indicator */
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: #d0d0e0;
+    border-radius: 2px;
+  }
+  .modal-sticker { font-size: 3rem; margin-bottom: 10px; }
+  .modal-message { font-size: 1.05rem; padding: 16px 18px; }
+  .modal-author  { font-size: 1rem; }
+
+  /* ── Toast: safe area aware ── */
+  .toast { bottom: max(20px, env(safe-area-inset-bottom)); }
+
+  /* ── Share modal: also bottom sheet ── */
+  .share-modal {
+    max-width: 100%;
+    width: 100%;
+    border-radius: 24px 24px 0 0;
+    padding: 36px 20px 32px;
+    transform: translateY(100%);
+  }
+  .share-modal::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 4px;
+    background: #d0d0e0;
+    border-radius: 2px;
+  }
+  .modal-overlay.open .share-modal {
+    transform: translateY(0);
+  }
+
+  /* ── Buttons: bigger tap targets ── */
+  .modal-action-btn {
+    padding: 12px 20px;
+    font-size: 0.88rem;
+    min-height: 44px;
+  }
+  .share-action-btn {
+    padding: 12px 18px;
+    font-size: 0.84rem;
+    min-height: 44px;
+  }
+  .submit-btn { padding: 16px 24px; min-height: 52px; }
+
+  /* ── Button press feedback ── */
+  .write-toggle-btn:active,
+  .submit-btn:active,
+  .filter-btn:active,
+  .share-btn:active,
+  .modal-action-btn:active,
+  .share-action-btn:active,
+  .sticker-btn:active,
+  .color-btn:active {
+    transform: scale(0.94) !important;
+    opacity: 0.88;
+    transition: transform 0.08s ease, opacity 0.08s ease !important;
+  }
 }

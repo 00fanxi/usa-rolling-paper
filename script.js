@@ -443,8 +443,8 @@ function openModal(msg, cardEl) {
   // 카드 색상으로 border-top 변경
   modalEl.style.borderTopColor = cardColorMap[msg.color] || '#1a3a6b';
 
-  // transform-origin: 클릭한 카드 중심에서 펼쳐지기
-  if (cardEl) {
+  // transform-origin: 클릭한 카드 중심에서 펼쳐지기 (데스크탑만)
+  if (cardEl && !isTouchDevice) {
     const r = cardEl.getBoundingClientRect();
     const ox = ((r.left + r.width  / 2) / window.innerWidth  * 100).toFixed(1);
     const oy = ((r.top  + r.height / 2) / window.innerHeight * 100).toFixed(1);
@@ -482,6 +482,37 @@ function closeModal() {
   modalOverlay.classList.remove('open');
   document.body.style.overflow = '';
   currentModalId = null;
+}
+
+// ── Mobile swipe-down to close (modal + share modal) ──
+function addSwipeDownClose(sheetEl, closeFn) {
+  let startY = 0;
+  let currentY = 0;
+  let dragging = false;
+
+  sheetEl.addEventListener('touchstart', (e) => {
+    // only start drag from top handle area (top 60px)
+    if (e.touches[0].clientY - sheetEl.getBoundingClientRect().top > 60) return;
+    startY   = e.touches[0].clientY;
+    dragging = true;
+    sheetEl.style.transition = 'none';
+  }, { passive: true });
+
+  sheetEl.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    currentY = e.touches[0].clientY;
+    const dy = Math.max(0, currentY - startY);
+    sheetEl.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+
+  sheetEl.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    const dy = currentY - startY;
+    sheetEl.style.transition = '';
+    sheetEl.style.transform  = '';
+    if (dy > 80) closeFn();
+  });
 }
 
 // Edit 버튼
@@ -596,6 +627,10 @@ function closeShareModal() {
 document.getElementById('shareBtn').addEventListener('click', openShareModal);
 document.getElementById('shareModalClose').addEventListener('click', closeShareModal);
 shareOverlay.addEventListener('click', e => { if (e.target === shareOverlay) closeShareModal(); });
+
+// ── Swipe-down to close (mobile bottom sheet) ──
+addSwipeDownClose(document.getElementById('modal'),      closeModal);
+addSwipeDownClose(document.getElementById('shareModal'), closeShareModal);
 
 // 다운로드
 document.getElementById('shareDownloadBtn').addEventListener('click', () => {
