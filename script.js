@@ -118,7 +118,7 @@ document.querySelectorAll('.color-btn').forEach(btn => {
 messageInput.addEventListener('input', () => {
   const len = messageInput.value.length;
   charCount.textContent = len;
-  document.querySelector('.char-count').style.color = len >= 200 ? '#c0392b' : '#c0c0d8';
+  document.querySelector('.char-count').style.color = len >= 900 ? '#c0392b' : '#c0c0d8';
 });
 
 // =====================
