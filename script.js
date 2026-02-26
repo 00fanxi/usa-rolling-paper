@@ -454,7 +454,7 @@ function openModal(msg, cardEl) {
   }
 
   // View mode
-  document.getElementById('modalSticker').textContent = msg.sticker;
+  document.getElementById('modalSticker').innerHTML = msg.sticker;
   document.getElementById('modalTo').textContent      = msg.to ? `To: ${msg.to}` : '';
   document.getElementById('modalAuthor').textContent  = `From: ${msg.author}`;
   document.getElementById('modalMessage').textContent = msg.message;
@@ -468,7 +468,7 @@ function openModal(msg, cardEl) {
 }
 
 function openEditMode(msg) {
-  document.getElementById('editSticker').textContent = msg.sticker;
+  document.getElementById('editSticker').innerHTML = msg.sticker;
   document.getElementById('editAuthor').value  = msg.author;
   document.getElementById('editTo').value      = msg.to || '';
   document.getElementById('editMessage').value = msg.message;
