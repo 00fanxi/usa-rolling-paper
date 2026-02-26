@@ -289,6 +289,43 @@ body {
   white-space: nowrap;
 }
 
+/* ── Group Photo ── */
+.group-photo-wrap {
+  margin-top: 24px;
+  animation: fade-in-down 0.6s ease var(--delay, 1.05s) both;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.group-photo {
+  width: 100%;
+  max-width: 620px;
+  border-radius: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  display: block;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.35s ease;
+}
+
+.group-photo:hover {
+  transform: scale(1.025) translateY(-4px);
+  box-shadow:
+    0 18px 48px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.group-photo-caption {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.72);
+  letter-spacing: 0.3px;
+  margin: 0;
+}
+
 /* =====================
    Main Layout — 1 column
 ===================== */
@@ -1322,6 +1359,10 @@ body {
   .guide-avatar { width: 70px; height: 70px; }
   .guide-name   { font-size: 0.9rem; }
   .guide-trait  { font-size: 0.62rem; }
+
+  /* ── Group Photo ── */
+  .group-photo { border-radius: 12px; }
+  .group-photo-caption { font-size: 0.7rem; }
 
   /* ── Main ── */
   .main { padding: 24px 12px 80px; }
