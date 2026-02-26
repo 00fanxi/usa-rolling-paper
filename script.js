@@ -725,17 +725,6 @@ document.head.appendChild(styleEl);
 // 🚀 Init
 // =====================
 (async () => {
-  if (JSONBIN_API_KEY === 'YOUR_API_KEY_HERE' || JSONBIN_BIN_ID === 'YOUR_BIN_ID_HERE') {
-    console.warn('⚠️ JSONBin not configured. Using localStorage fallback.');
-    messages = JSON.parse(localStorage.getItem('usaTripMessages') || '[]');
-    if (messages.length === 0) {
-      messages = getSampleData();
-      localStorage.setItem('usaTripMessages', JSON.stringify(messages));
-    }
-    renderBoard();
-    return;
-  }
-
   // Loading indicator
   board.innerHTML = `
     <div class="empty-state" id="emptyState">
@@ -745,11 +734,6 @@ document.head.appendChild(styleEl);
   `;
 
   messages = await fetchMessages();
-
-  if (messages.length === 0) {
-    messages = getSampleData();
-    await saveMessages(messages);
-  }
 
   renderBoard();
 })();
