@@ -524,6 +524,27 @@ body {
   box-shadow: 0 2px 8px rgba(26, 58, 107, 0.25);
 }
 
+/* SVG image sticker button */
+.sticker-btn--img {
+  padding: 4px;
+}
+
+.sticker-btn img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+  border-radius: 4px;
+}
+
+/* card-sticker 내 img 크기 */
+.card-sticker img {
+  width: 2rem;
+  height: 2rem;
+  object-fit: contain;
+  display: block;
+}
+
 /* =====================
    Color Picker
 ===================== */
