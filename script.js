@@ -550,20 +550,6 @@ document.getElementById('cancelEditBtn').addEventListener('click', () => {
   if (msg) openModal(msg);
 });
 
-// Delete 버튼
-document.getElementById('deleteBtn').addEventListener('click', async () => {
-  if (!confirm('Delete this message? This cannot be undone.')) return;
-
-  messages = messages.filter(m => m.id !== currentModalId);
-  closeModal();
-  renderBoard();
-
-  setLoading(true);
-  const ok = await saveMessages(messages);
-  setLoading(false);
-
-  showToast(ok ? '🗑️ Message deleted!' : '⚠️ Deleted locally — check API key!');
-});
 
 document.getElementById('modalClose').addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) closeModal(); });

@@ -1035,16 +1035,6 @@ body {
   box-shadow: 0 4px 14px rgba(26, 58, 107, 0.3);
 }
 
-.delete-btn {
-  background: #ffeaea;
-  color: var(--red);
-}
-.delete-btn:hover {
-  background: var(--red);
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(192, 57, 43, 0.3);
-}
 
 .save-btn {
   background: linear-gradient(135deg, #1a3a6b, #2e5eaa);
